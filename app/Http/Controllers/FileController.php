@@ -23,7 +23,7 @@ class FileController extends Controller
         // $request->validate([
         //     'csv' => 'required|mimes:csv,txt'
         // ]);
-     ;
+     
         $filePath = public_path('records/'.$request->csv);
         $recordFile = fopen($filePath, 'r');
         $header = [
@@ -46,12 +46,11 @@ class FileController extends Controller
     }
 
     public function exportAll() {
-        $chunkSize = 10000;
+        $chunkSize = 1000;
         // $recordsCount = Record::count();
-        $recordsCount = 1000;
+        $recordsCount = 5000;
         $numberOfChunks = ceil($recordsCount / $chunkSize);
-
-        $folder = now()->toDateString() . '-' . str_replace(':', '-', now()->toTimeString());
+        $folder = 'Record_'. time();
 
         $batches = [
             new CreateRecordsExportFile($chunkSize, $folder)

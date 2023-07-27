@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\File;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
+use OpenSpout\Common\Entity\Style\Style;
+use Rap2hpoutre\FastExcel\SheetCollection;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -31,8 +33,21 @@ class CreateRecordsExportFile implements ShouldQueue
             File::makeDirectory(public_path("/records"), 0777, true, true);
         } 
 
-        (new FastExcel($this->recordsGenerator($records)))
-            ->export(public_path("/records/$this->folder.csv"), function ($record) {
+        $style = (new Style())
+        ->setCellAlignment('left')
+        ->setShouldShrinkToFit(false)
+        ->setShouldWrapText(false);
+
+        $sheets = new SheetCollection([
+            'Batch - 1' => $this->recordsGenerator($records)
+        ]);
+
+        // $generate = new SheetCollection($this->recordsGenerator($records));
+        $generate = $this->recordsGenerator($records);
+        (new FastExcel($sheets))
+            ->headerStyle($style)
+            ->rowsStyle($style)
+            ->export(public_path("/records/$this->folder.xlsx"), function ($record) {
                 return [
                     'id'            => $record->id ?? "",
                     'name'          => $record->name ?? "",
